@@ -1,23 +1,28 @@
 {
-  "name": "Capture chrome-extension",
+  "name": "Capture Reloaded CE",
   "version": "0.1",
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "background": {
-    "scripts": ["background.js"],
-    "persistance": false
+    "service_worker": "background.js"
   },
 
-  "permissions": ["tabs", "cookies", "<all_urls>", "storage"],
-  "browser_action": {
+  "action": {
     "default_popup": "popup.html"
   },
 
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["/scripts/find-send-data.js"],
+      "matches": ["<all_urls>"]
     }
+  ],
+
+  "permissions": ["scripting", "cookies"],
+
+  "host_permissions": [
+    "<all_urls>",
+    "http://localhost:3000/api/v1/captures/*"
   ]
 
 }

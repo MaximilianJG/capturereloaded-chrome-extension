@@ -1,70 +1,74 @@
+console.log("FIND SEND DATA IS RUNNING")
+
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    console.log(sender.tab ?
+                "from a content script:" + sender.tab.url :
+                request.greeting);
+
+
 function fetchData() {
   const selectedText = window.getSelection().toString();
   const url_of_quote = window.location.href
-  const title = document.querySelector("h1").innerText
-  const website = window.location.hostname
   const url_of_website = url_of_quote
+  const title = document.querySelector("h1").innerText
   const photo_url = document.getElementsByTagName('img')
-  const source_content = document.getElementsByTagName('p')
 
-// Todo: 1. Get the Date, 2. Get the Author, 3. Find a solution for Favicons
+  console.log(photo_url)
+
   return {
-    content: selectedText,
+
+    selectedText: selectedText,
     url_of_quote: url_of_quote,
     title: title,
-    website: website,
-    url_of_website: url_of_website,
+    url_of_capture: url_of_website,
     photo_url: photo_url[0].currentSrc,
-    source_content: source_content
+    private: true,
+    user_id: request.user_id,
+    folder_id: request.folder_id
   }
 }
 
-chrome.runtime.onMessage.addListener(MessageReceived)
+function sendData(data) {
+  const url = "http://localhost:3000/api/v1/captures"
+  console.log(data.photo_url)
 
-    function MessageReceived(message) {
-      const cookie = message
-      console.log(cookie)
-      const apiCookieHeader = `${cookie.name}=${cookie.value}`
-      console.log(apiCookieHeader)
-      console.log(cookie.value)
+  const params = {
 
-      console.log(fetchData())
+    capture: {
+      title: data.title,
+      url_of_capture: data.url_of_quote,
+      private: data.private,
+      folder_id: data.folder_id,
+      user_id: data.user_id,
+      photo_url: data.photo_url,
 
-      function sendData (data) {
-        // const url = 'https://capture-maximilianjg.herokuapp.com/api/v1/quotes'
-        const url = 'http://localhost:3000/api/v1/quotes'
+      quote_content: data.selectedText,
+      url_of_quote: data.url_of_quote
+    }
+  }
 
-        const params = {
-          user: {
-            user_id: cookie.value
-          },
-          quote: {
-            content: data.content,
-            url_of_quote: data.url_of_quote,
-          },
-          source: {
-            title: data.title,
-            website: data.website,
-            url_of_website: data.url_of_website,
-            content: data.source_content
-          },
-          photo: {
-            photo_url: data.photo_url
-          }
-        }
+  const options = {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json'},
+    body: JSON.stringify(params),
+    mode: 'cors',
+  }
 
-        const options = {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json', Cookie: apiCookieHeader },
-          body: JSON.stringify(params)
-        }
+  fetch(url, options)
+  //.then(response => response.json())
+  //.then(data => console.log(data))
+}
 
-        console.log(options)
-        console.log(params)
+console.log("Fetching data from content.js")
+sendData(fetchData());
 
-        fetch(url, options)
-        .then(response => response.json())
-        .then(data => console.log(data))
-      }
-      sendData(fetchData());
-};
+window.getSelection().removeAllRanges();
+
+
+
+  if (request.folder_id == "hello")
+      sendResponse({farewell: "goodbye"});
+  }
+);

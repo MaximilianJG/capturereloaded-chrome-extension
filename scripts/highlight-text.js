@@ -33,4 +33,4 @@ function highlight(colour) {
     }
 }
 
-highlight('#FEFF05');
+highlight('#FFFF00');
